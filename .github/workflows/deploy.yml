@@ -43,13 +43,26 @@ jobs:
       #     docker build -t $ECR_REGISTRY/$BACKEND_IMAGE:latest ./Backend
       #     docker push $ECR_REGISTRY/$BACKEND_IMAGE:latest
 
+      - name: Get VPC and Subnets
+        id: network
+        run: |
+          VPC_ID=$(aws ec2 describe-vpcs --filters Name=isDefault,Values=true --query "Vpcs[0].VpcId" --output text)
+          SUBNET_IDS=$(aws ec2 describe-subnets --filters Name=vpc-id,Values=$VPC_ID Name=default-for-az,Values=true --query "Subnets[*].SubnetId" --output text | tr '\t' ',')
+          echo "VPC_ID=$VPC_ID" >> $GITHUB_ENV
+          echo "SUBNET_IDS=$SUBNET_IDS" >> $GITHUB_ENV
+
+
       - name: Deploy CloudFormation Stack
         run: |
           aws cloudformation deploy \
             --stack-name $STACK_NAME \
             --template-file infra-provision/infra.yaml \
             --capabilities CAPABILITY_NAMED_IAM \
-            --parameter-overrides BackendImage=$ECR_REGISTRY/$BACKEND_IMAGE:latest
+            --parameter-overrides \
+              BackendImage=$ECR_REGISTRY/$BACKEND_IMAGE:latest \
+              VpcId=$VPC_ID \
+              SubnetIds=\"$SUBNET_IDS\"
+
 
       - name: Get ALB URL
         id: alb
