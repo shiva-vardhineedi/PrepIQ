@@ -1,0 +1,42 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-2
+  BACKEND_IMAGE: backend-prepiq
+  FRONTEND_IMAGE: frontend-prepiq
+  ECR_REGISTRY: 454919090770.dkr.ecr.us-east-2.amazonaws.com
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+      - name: Build and Push Backend
+        run: |
+          docker build -t $ECR_REGISTRY/$BACKEND_IMAGE:latest ./Backend
+          docker push $ECR_REGISTRY/$BACKEND_IMAGE:latest
+
+      - name: Build and Push Frontend
+        run: |
+          docker build \
+            --build-arg REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }} \
+            -t $ECR_REGISTRY/$FRONTEND_IMAGE:latest ./frontend/quiz_application
+          docker push $ECR_REGISTRY/$FRONTEND_IMAGE:latest
