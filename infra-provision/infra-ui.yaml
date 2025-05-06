@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Deploy React Frontend on EC2 with ALB and Route53
+Description: Deploy React Frontend on EC2 using Docker from ECR with ALB and Route53
 
 Parameters:
-  FrontendImageURI:
+  FrontendImage:
     Type: String
-    Description: Full ECR Image URI with tag
+    Description: ECR Image URI for frontend
   ECRRegistry:
     Type: String
     Description: Registry
@@ -17,12 +17,15 @@ Parameters:
   LatestAmiId:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  FrontendImageURI:
+    Type: String
+    Description: Full ECR Image URI with tag
   HostedZoneId:
     Type: String
-    Description: ID of the Route53 hosted zone
+    Description: Route53 Hosted Zone ID
   DomainName:
     Type: String
-    Description: Domain name to associate with ALB
+    Description: Domain name (e.g., prepiq.online)
 
 Resources:
   FrontendSecurityGroup:
@@ -93,56 +96,48 @@ Resources:
           docker pull ${FrontendImageURI}
           docker run -d -p 80:80 ${FrontendImageURI}
 
-  FrontendTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Port: 80
-      Protocol: HTTP
-      VpcId: !Ref VpcId
-      TargetType: instance
-      HealthCheckPath: /
-      Matcher:
-        HttpCode: 200
-
-  FrontendALB:
+  LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Name: frontend-alb
-      Subnets:
-        - !Ref SubnetId
-      SecurityGroups:
-        - !Ref FrontendSecurityGroup
+      Subnets: [!Ref SubnetId]
+      SecurityGroups: [!Ref FrontendSecurityGroup]
       Scheme: internet-facing
-      Type: application
 
-  FrontendListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref FrontendTargetGroup
-      LoadBalancerArn: !Ref FrontendALB
+      VpcId: !Ref VpcId
       Port: 80
       Protocol: HTTP
+      TargetType: instance
+      HealthCheckPath: /
 
-  ALBTargetAttachment:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      TargetGroupArn: !Ref FrontendTargetGroup
-      TargetId: !Ref FrontendInstance
+      LoadBalancerArn: !Ref LoadBalancer
       Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
 
-  Route53Record:
+  DNSRecord:
     Type: AWS::Route53::RecordSet
     Properties:
       HostedZoneId: !Ref HostedZoneId
       Name: !Ref DomainName
       Type: A
       AliasTarget:
-        DNSName: !GetAtt FrontendALB.DNSName
-        HostedZoneId: !GetAtt FrontendALB.CanonicalHostedZoneID
+        DNSName: !GetAtt LoadBalancer.DNSName
+        HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
 
 Outputs:
-  ALBDNS:
-    Description: DNS name of the ALB
-    Value: !GetAtt FrontendALB.DNSName
+  FrontendPublicIP:
+    Description: Public IP of the frontend EC2 instance
+    Value: !GetAtt FrontendInstance.PublicIp
+
+  LoadBalancerDNS:
+    Description: Public DNS of the Application Load Balancer
+    Value: !GetAtt LoadBalancer.DNSName
