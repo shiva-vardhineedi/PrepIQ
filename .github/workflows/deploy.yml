@@ -72,14 +72,32 @@ jobs:
       #       -t $ECR_REGISTRY/$FRONTEND_IMAGE:latest ./Frontend/quiz_application
       #     docker push $ECR_REGISTRY/$FRONTEND_IMAGE:latest
 
-      - name: Deploy Frontend EC2 CloudFormation Stack
+      - name: Get Latest Amazon Linux 2 AMI ID
+        id: ami
         run: |
-          FIRST_SUBNET=$(echo "${{ secrets.DEFAULT_SUBNET_IDS }}" | cut -d',' -f1)
+          AMI_ID=$(aws ec2 describe-images \
+            --owners amazon \
+            --filters "Name=name,Values=amzn2-ami-hvm-*-x86_64-gp2" "Name=state,Values=available" \
+            --query 'Images[*].[ImageId,CreationDate]' \
+            --output text | sort -k2 -r | head -n1 | cut -f1)
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+
+      - name: Deploy Frontend CloudFormation Stack
+        run: |
           aws cloudformation deploy \
-            --stack-name $FRONTEND_STACK \
-            --template-file infra-provision/infra-ui.yaml \
+            --stack-name $STACK_NAME \
+            --template-file infra-provision/frontend-ec2.yaml \
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides \
-                FrontendImage=$ECR_REGISTRY/$FRONTEND_IMAGE:latest \
-                VpcId=${{ secrets.DEFAULT_VPC_ID }} \
-                SubnetId=$FIRST_SUBNET
+              AmiId=$AMI_ID \
+              FrontendImage=$FRONTEND_IMAGE \
+              VpcId=$VPC_ID \
+              SubnetIds=$SUBNET_IDS
+
+      - name: Get Frontend Public IP
+        run: |
+          FRONTEND_IP=$(aws cloudformation describe-stacks \
+            --stack-name $FRONTEND_STACK_NAME \
+            --query "Stacks[0].Outputs[?OutputKey=='FrontendPublicIP'].OutputValue" \
+            --output text)
+          echo "Frontend is now available at: http://$FRONTEND_IP"
