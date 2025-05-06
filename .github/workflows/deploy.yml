@@ -84,7 +84,6 @@ jobs:
 
       - name: Deploy Frontend CloudFormation Stack
         run: |
-          SUBNETS=$(echo "${{ secrets.DEFAULT_SUBNET_IDS }}" | sed 's/,/ /g')
           FIRST_SUBNET=$(echo "${{ secrets.DEFAULT_SUBNET_IDS }}" | cut -d',' -f1)
           aws cloudformation deploy \
             --stack-name $FRONTEND_STACK \
@@ -96,7 +95,7 @@ jobs:
               FrontendImageURI=$ECR_REGISTRY/$FRONTEND_IMAGE:latest \
               FrontendImage=$FRONTEND_IMAGE \
               VpcId=${{ secrets.DEFAULT_VPC_ID }} \
-              SubnetIds=\"${{ secrets.DEFAULT_SUBNET_IDS }}\" \
+              SubnetIds=${{ secrets.DEFAULT_SUBNET_IDS }} \
               SubnetId=$FIRST_SUBNET \
               DomainName=prepiq.online \
               HostedZoneId=${{ secrets.HOSTED_ZONE_ID }}
