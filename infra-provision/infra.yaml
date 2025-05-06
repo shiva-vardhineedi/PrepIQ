@@ -89,6 +89,7 @@ Resources:
       Memory: 512
       NetworkMode: awsvpc
       ExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt TaskExecutionRole.Arn
       ContainerDefinitions:
         - Name: backend
           Image: !Ref BackendImage
