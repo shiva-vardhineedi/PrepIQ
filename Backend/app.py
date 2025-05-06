@@ -158,6 +158,10 @@ def store_quiz_in_db(db, topic_name: str, subtopics: list, quiz_data: dict):
 
 pdf_directory = '/Users/shivavardhineedi/Desktop/HPC-data/major-project/POC/course-documents'
 
+@app.get("/")
+def root():
+    return {"status": "ok"}
+
 @app.post("/upload-documents")
 async def upload_documents(files: List[UploadFile] = File(...)):
     """
