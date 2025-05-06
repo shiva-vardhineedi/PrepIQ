@@ -31,11 +31,6 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
-  ECSServiceLinkedRole:
-    Type: AWS::IAM::ServiceLinkedRole
-    Properties:
-      AWSServiceName: ecs.amazonaws.com
-
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
