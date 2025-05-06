@@ -86,7 +86,7 @@ jobs:
         run: |
           aws cloudformation deploy \
             --stack-name $STACK_NAME \
-            --template-file infra-provision/frontend-ec2.yaml \
+            --template-file infra-provision/infra-ui.yaml \
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides \
               AmiId=$AMI_ID \
