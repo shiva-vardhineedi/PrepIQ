@@ -66,34 +66,34 @@ Resources:
             - !Ref FrontendSecurityGroup
       UserData:
         Fn::Base64: !Sub |
-    #!/bin/bash
-    exec > /var/log/user-data.log 2>&1
+          #!/bin/bash
+          exec > /var/log/user-data.log 2>&1
 
-    sudo yum update -y
-    sudo amazon-linux-extras install docker -y
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    sudo usermod -a -G docker ec2-user
+          sudo yum update -y
+          sudo amazon-linux-extras install docker -y
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          sudo usermod -a -G docker ec2-user
 
-    # Wait for Docker to be ready
-    until docker info >/dev/null 2>&1; do
-      echo "Waiting for Docker to be ready..."
-      sleep 2
-    done
+          # Wait for Docker to be ready
+          until docker info >/dev/null 2>&1; do
+            echo "Waiting for Docker to be ready..."
+            sleep 2
+          done
 
-    # Retry ECR login
-    for i in {1..5}; do
-      echo "Attempting ECR login (try $i)..."
-      aws ecr get-login-password --region ${AWS::Region} | docker login --username AWS --password-stdin ${ECRRegistry} && break
-      sleep 5
-    done
+          # Retry ECR login
+          for i in {1..5}; do
+            echo "Attempting ECR login (try $i)..."
+            aws ecr get-login-password --region ${AWS::Region} | docker login --username AWS --password-stdin ${ECRRegistry} && break
+            sleep 5
+          done
 
-    # Pull and run image
-    echo "Pulling frontend image..."
-    docker pull ${ECRRegistry}/${FrontendImage}:latest
+          # Pull and run image
+          echo "Pulling frontend image..."
+          docker pull ${ECRRegistry}/${FrontendImage}:latest
 
-    echo "Running container..."
-    docker run -d -p 80:80 ${ECRRegistry}/${FrontendImage}:latest
+          echo "Running container..."
+          docker run -d -p 80:80 ${ECRRegistry}/${FrontendImage}:latest
 
 Outputs:
   FrontendPublicIP:
