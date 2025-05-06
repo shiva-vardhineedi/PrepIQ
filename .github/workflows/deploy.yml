@@ -84,15 +84,16 @@ jobs:
 
       - name: Deploy Frontend CloudFormation Stack
         run: |
+          FIRST_SUBNET=$(echo "${{ secrets.DEFAULT_SUBNET_IDS }}" | cut -d',' -f1)
           aws cloudformation deploy \
-            --stack-name $STACK_NAME \
+            --stack-name $FRONTEND_STACK \
             --template-file infra-provision/infra-ui.yaml \
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides \
               AmiId=$AMI_ID \
               FrontendImage=$FRONTEND_IMAGE \
               VpcId=${{ secrets.DEFAULT_VPC_ID }} \
-              SubnetIds=${{ secrets.DEFAULT_SUBNET_IDS }}
+              SubnetId=$FIRST_SUBNET
 
       - name: Get Frontend Public IP
         run: |
