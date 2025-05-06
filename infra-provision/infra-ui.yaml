@@ -114,6 +114,9 @@ Resources:
       Port: 80
       Protocol: HTTP
       TargetType: instance
+      Targets:
+        - Id: !Ref FrontendInstance
+          Port: 80
       HealthCheckPath: /
 
   Listener:
@@ -125,13 +128,6 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
-          
-  FrontendTargetAttachment:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TargetGroup
-      TargetId: !Ref FrontendInstance
-      Port: 80
 
   DNSRecord:
     Type: AWS::Route53::RecordSet
