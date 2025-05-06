@@ -314,13 +314,13 @@ async def list_s3_topics():
     This endpoint lists all folder names in the S3 bucket.
     """
     try:
-        # s3 = boto3.client('s3')
-        s3 = boto3.client(
-            "s3",
-            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-            region_name=os.getenv("AWS_REGION")
-        )
+        s3 = boto3.client('s3')
+        # s3 = boto3.client(
+        #     "s3",
+        #     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        #     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        #     region_name=os.getenv("AWS_REGION")
+        # )
         s3_bucket = "cmpe-295-team-101"
         response = s3.list_objects_v2(Bucket=s3_bucket, Prefix='', Delimiter='/')
         folder_names = set()
@@ -341,13 +341,13 @@ async def delete_s3_folder(s3_folder_name: dict):
     This endpoint deletes the specified folder in S3 if it exists.
     """
     try:
-        # s3 = boto3.client('s3')
-        s3 = boto3.client(
-            "s3",
-            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-            region_name=os.getenv("AWS_REGION")
-        )
+        s3 = boto3.client('s3')
+        # s3 = boto3.client(
+        #     "s3",
+        #     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        #     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        #     region_name=os.getenv("AWS_REGION")
+        # )
         s3_bucket = "cmpe-295-team-101"
         prefix = f"{s3_folder_name['s3_folder_name']}/"
 
@@ -419,13 +419,13 @@ async def generate_quiz(request: QuizRequest):
         background_tasks.add_task(push_to_rabbitmq, queue_name, message)
 
         # Initialize S3 client
-        # s3 = boto3.client('s3')
-        s3 = boto3.client(
-            "s3",
-            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-            region_name=os.getenv("AWS_REGION")
-        )
+        s3 = boto3.client('s3')
+        # s3 = boto3.client(
+        #     "s3",
+        #     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        #     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        #     region_name=os.getenv("AWS_REGION")
+        # )
         s3_bucket = "cmpe-295-team-101"
         s3_index_prefix = f"{topic_name}/"
 
