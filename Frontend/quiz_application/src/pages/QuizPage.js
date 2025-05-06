@@ -112,7 +112,7 @@ const QuizPage = () => {
       const answersList = quiz.questions.map((_, index) => answers[index] || "Not Answered");
   
       // Update answers in backend
-      await axios.post(`${baseURL}/update_answers`, {
+      await axios.post(`${baseURL}/api/update_answers`, {
         quiz_id: quizId,
         your_answers: answersList,
       });
@@ -126,7 +126,7 @@ const QuizPage = () => {
           userAnswer !== "Not Answered"
         ) {
           return axios
-            .post(`${baseURL}/grade-open-answer`, {
+            .post(`${baseURL}/api/grade-open-answer`, {
               question: q.question,
               expected_answer: q.answer,
               user_answer: userAnswer,
@@ -166,7 +166,7 @@ const QuizPage = () => {
     try {
       const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
       // const response = await axios.post(`${baseURL}/update_answers`, answerData);
-      const response = await axios.get(`${baseURL}/download-quiz-pdf`, {
+      const response = await axios.get(`${baseURL}/api/download-quiz-pdf`, {
         responseType: "blob",
       });
 
@@ -213,7 +213,7 @@ const handleAnswerChange = (questionIndex, selectedOption) => {
     debounceTimeouts.current[questionIndex] = setTimeout(async () => {
       try {
         const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-        const res = await axios.post(`${baseURL}/grade-open-answer`, {
+        const res = await axios.post(`${baseURL}/api/grade-open-answer`, {
           question: q.question,
           expected_answer: q.answer,
           user_answer: selectedOption,
@@ -247,7 +247,7 @@ const handleAnswerChange = (questionIndex, selectedOption) => {
   
     const questionObj = quiz.questions[questionIndex];
     const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-    const response = await axios.post(`${baseURL}/explain-answer`, {
+    const response = await axios.post(`${baseURL}/api/explain-answer`, {
       question: questionObj.question,
       answer: questionObj.answer,
       choices: questionObj.options || null

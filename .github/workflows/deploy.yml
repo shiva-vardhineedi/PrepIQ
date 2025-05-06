@@ -70,3 +70,15 @@ jobs:
             --build-arg REACT_APP_API_URL=http://$ALB_URL \
             -t $ECR_REGISTRY/$FRONTEND_IMAGE:latest ./Frontend/quiz_application
           docker push $ECR_REGISTRY/$FRONTEND_IMAGE:latest
+
+      - name: Deploy Frontend EC2 CloudFormation Stack
+        run: |
+          FIRST_SUBNET=$(echo "${{ secrets.DEFAULT_SUBNET_IDS }}" | cut -d',' -f1)
+          aws cloudformation deploy \
+            --stack-name $FRONTEND_STACK \
+            --template-file infra-provision/frontend-ec2.yaml \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameter-overrides \
+                FrontendImage=$ECR_REGISTRY/$FRONTEND_IMAGE:latest \
+                VpcId=${{ secrets.DEFAULT_VPC_ID }} \
+                SubnetId=$FIRST_SUBNET

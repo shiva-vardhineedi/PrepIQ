@@ -109,7 +109,7 @@ const Dashboard = () => {
       try {
         setLoading(true);
         const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-        const quizzesResponse = await axios.get(`${baseURL}/get-all-quizzes`);
+        const quizzesResponse = await axios.get(`${baseURL}/api/get-all-quizzes`);
         setQuizzes(quizzesResponse.data);
 
         const fetchFavorites = () => {

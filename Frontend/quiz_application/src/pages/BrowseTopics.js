@@ -132,7 +132,7 @@ const BrowseTopics = () => {
       try {
         setLoadingTopics(true);
         const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-        const response = await axios.get(`${baseURL}/list-s3-topics`);
+        const response = await axios.get(`${baseURL}/api/list-s3-topics`);
         // const response = await axios.get("http://localhost:8000/list-s3-topics");
         console.log("Response from fetchTopics:", response.data);
   
@@ -229,7 +229,7 @@ const BrowseTopics = () => {
   
       // Call generate-quiz API
       const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-      const response = await axios.post(`${baseURL}/generate-quiz`, requestData);
+      const response = await axios.post(`${baseURL}/api/generate-quiz`, requestData);
       // const response = await axios.post("http://localhost:8000/generate-quiz", requestData);
   
       if (response.status === 200) {
@@ -246,7 +246,7 @@ const BrowseTopics = () => {
         };
   
         const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-        const storeResponse = await axios.post(`${baseURL}/store-quiz`, storeRequest);
+        const storeResponse = await axios.post(`${baseURL}/api/store-quiz`, storeRequest);
         // const storeResponse = await axios.post("http://localhost:8000/store-quiz", storeRequest);
   
         if (storeResponse.status === 200) {
@@ -317,7 +317,7 @@ const BrowseTopics = () => {
       };
   
       const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-      const response = await axios.post(`${baseURL}/update_answers`, answerData);
+      const response = await axios.post(`${baseURL}/api/update_answers`, answerData);
       // const response = await axios.post("http://localhost:8000/update_answers", answerData);
   
       if (response.status === 200) {
@@ -387,7 +387,7 @@ const BrowseTopics = () => {
       // Step 1: Upload documents and create FAISS index
       const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
       // const response = await axios.post(`${baseURL}/update_answers`, answerData);
-      const faissResponse = await axios.post(`${baseURL}/upload-documents`, formData, {
+      const faissResponse = await axios.post(`${baseURL}/api/upload-documents`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -403,7 +403,7 @@ const BrowseTopics = () => {
         // Step 2: Upload FAISS index to S3
         const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
         const s3Response = await axios.post(
-          `${baseURL}/upload-faiss-to-s3`,
+          `${baseURL}/api/upload-faiss-to-s3`,
           { s3_folder_name: newTopicData.name },
           {
             headers: {

@@ -61,7 +61,7 @@ Resources:
       Protocol: HTTP
       VpcId: !Ref VpcId
       TargetType: ip
-      HealthCheckPath: /
+      HealthCheckPath: /api/
       HealthCheckProtocol: HTTP
       HealthCheckPort: traffic-port
       HealthCheckIntervalSeconds: 30

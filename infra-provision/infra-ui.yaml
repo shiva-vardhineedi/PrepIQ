@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy React Frontend on EC2 using Docker from ECR
+
+Parameters:
+  FrontendImage:
+    Type: String
+    Description: ECR Image URI for frontend
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: Default VPC ID
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Public subnet for EC2 instance
+
+Resources:
+  FrontendSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref VpcId
+      GroupDescription: Allow HTTP to frontend EC2
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  EC2InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2InstanceRole
+
+  FrontendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0c02fb55956c7d316
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref SubnetId
+          GroupSet:
+            - !Ref FrontendSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          amazon-linux-extras install docker -y
+          service docker start
+          usermod -a -G docker ec2-user
+          aws ecr get-login-password --region ${AWS::Region} | docker login --username AWS --password-stdin ${FrontendImage}
+          docker pull ${FrontendImage}
+          docker run -d -p 80:80 ${FrontendImage}
+
+Outputs:
+  FrontendPublicIP:
+    Description: Public IP of the frontend EC2 instance
+    Value: !GetAtt FrontendInstance.PublicIp
