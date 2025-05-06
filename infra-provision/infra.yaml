@@ -35,7 +35,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref VpcId
-      GroupDescription: Allow HTTP
+      GroupDescription: Allow HTTP on 8000 from ALB
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 8000
@@ -57,6 +57,14 @@ Resources:
       VpcId: !Ref VpcId
       TargetType: ip
       HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckPort: traffic-port
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 5
+      Matcher:
+        HttpCode: 200
 
   Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -81,6 +89,7 @@ Resources:
           Image: !Ref BackendImage
           PortMappings:
             - ContainerPort: 8000
+          Essential: true
 
   Service:
     Type: AWS::ECS::Service
