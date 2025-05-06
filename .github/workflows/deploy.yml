@@ -9,7 +9,7 @@ env:
   BACKEND_IMAGE: majorproject/backend-prepiq
   FRONTEND_IMAGE: majorproject/frontend-prepiq
   ECR_REGISTRY: 454919090770.dkr.ecr.us-east-2.amazonaws.com
-  STACK_NAME: edurag-ecs-stack
+  STACK_NAME: edurag-ecs-stack-new
 
 jobs:
   deploy:
