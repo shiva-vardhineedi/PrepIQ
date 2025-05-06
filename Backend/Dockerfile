@@ -21,6 +21,9 @@ RUN apt-get update && apt-get install -y \
 # Install RabbitMQ client tools
 RUN apt-get update && apt-get install -y librabbitmq-dev
 
+# Pre-download the model into cache
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
+
 # Copy requirements (create this in step 2)
 COPY requirements.txt .
 
