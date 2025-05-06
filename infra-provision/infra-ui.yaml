@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Deploy React Frontend on EC2 using Docker from ECR
+Description: Deploy React Frontend on EC2 with ALB and Route53
 
 Parameters:
-  FrontendImage:
+  FrontendImageURI:
     Type: String
-    Description: ECR Image URI for frontend
+    Description: Full ECR Image URI with tag
   ECRRegistry:
     Type: String
     Description: Registry
@@ -17,9 +17,12 @@ Parameters:
   LatestAmiId:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
-  FrontendImageURI:
+  HostedZoneId:
     Type: String
-    Description: Full ECR Image URI with tag
+    Description: ID of the Route53 hosted zone
+  DomainName:
+    Type: String
+    Description: Domain name to associate with ALB
 
 Resources:
   FrontendSecurityGroup:
@@ -78,27 +81,68 @@ Resources:
           sudo systemctl enable docker
           sudo usermod -a -G docker ec2-user
 
-          # Wait for Docker to be ready
           until docker info >/dev/null 2>&1; do
-            echo "Waiting for Docker to be ready..."
             sleep 2
           done
 
-          # Retry ECR login
           for i in {1..5}; do
-            echo "Attempting ECR login (try $i)..."
             aws ecr get-login-password --region ${AWS::Region} | docker login --username AWS --password-stdin ${ECRRegistry} && break
             sleep 5
           done
 
-          # Pull and run image
-          echo "Pulling frontend image..."
           docker pull ${FrontendImageURI}
-
-          echo "Running container..."
           docker run -d -p 80:80 ${FrontendImageURI}
 
+  FrontendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref VpcId
+      TargetType: instance
+      HealthCheckPath: /
+      Matcher:
+        HttpCode: 200
+
+  FrontendALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: frontend-alb
+      Subnets:
+        - !Ref SubnetId
+      SecurityGroups:
+        - !Ref FrontendSecurityGroup
+      Scheme: internet-facing
+      Type: application
+
+  FrontendListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref FrontendTargetGroup
+      LoadBalancerArn: !Ref FrontendALB
+      Port: 80
+      Protocol: HTTP
+
+  ALBTargetAttachment:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref FrontendTargetGroup
+      TargetId: !Ref FrontendInstance
+      Port: 80
+
+  Route53Record:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt FrontendALB.DNSName
+        HostedZoneId: !GetAtt FrontendALB.CanonicalHostedZoneID
+
 Outputs:
-  FrontendPublicIP:
-    Description: Public IP of the frontend EC2 instance
-    Value: !GetAtt FrontendInstance.PublicIp
+  ALBDNS:
+    Description: DNS name of the ALB
+    Value: !GetAtt FrontendALB.DNSName
