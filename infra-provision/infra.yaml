@@ -1,72 +1,18 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ECS Cluster with Fargate backend and ALB
+Description: ECS Cluster with Fargate backend and ALB using default VPC
 
 Parameters:
   BackendImage:
     Type: String
     Description: ECR Image for backend
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: Use the default VPC
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Use public subnets in default VPC
 
 Resources:
-  VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-      Tags:
-        - Key: Name
-          Value: EduRAG-VPC
-
-  SubnetA:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: 10.0.1.0/24
-      AvailabilityZone: !Select [0, !GetAZs '']
-      MapPublicIpOnLaunch: true
-
-  SubnetB:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: 10.0.2.0/24
-      AvailabilityZone: !Select [1, !GetAZs '']
-      MapPublicIpOnLaunch: true
-
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-
-  AttachGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId: !Ref VPC
-      InternetGatewayId: !Ref InternetGateway
-
-  RouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-
-  PublicRoute:
-    Type: AWS::EC2::Route
-    DependsOn: AttachGateway
-    Properties:
-      RouteTableId: !Ref RouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref InternetGateway
-
-  SubnetARoute:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref RouteTable
-      SubnetId: !Ref SubnetA
-
-  SubnetBRoute:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref RouteTable
-      SubnetId: !Ref SubnetB
-
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
@@ -85,10 +31,15 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
+  ECSServiceLinkedRole:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: ecs.amazonaws.com
+
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcId
       GroupDescription: Allow HTTP
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -99,7 +50,7 @@ Resources:
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Subnets: [!Ref SubnetA, !Ref SubnetB]
+      Subnets: !Ref SubnetIds
       SecurityGroups: [!Ref SecurityGroup]
       Scheme: internet-facing
 
@@ -108,7 +59,7 @@ Resources:
     Properties:
       Port: 8000
       Protocol: HTTP
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcId
       TargetType: ip
       HealthCheckPath: /
 
@@ -138,6 +89,7 @@ Resources:
 
   Service:
     Type: AWS::ECS::Service
+    DependsOn: Listener
     Properties:
       Cluster: !Ref Cluster
       LaunchType: FARGATE
@@ -145,7 +97,7 @@ Resources:
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
-          Subnets: [!Ref SubnetA, !Ref SubnetB]
+          Subnets: !Ref SubnetIds
           SecurityGroups: [!Ref SecurityGroup]
       TaskDefinition: !Ref TaskDefinition
       LoadBalancers:
