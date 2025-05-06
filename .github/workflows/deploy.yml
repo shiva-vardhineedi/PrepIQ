@@ -91,6 +91,7 @@ jobs:
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides \
               AmiId=$AMI_ID \
+              ECRRegistry=$ECR_REGISTRY \
               FrontendImage=$FRONTEND_IMAGE \
               VpcId=${{ secrets.DEFAULT_VPC_ID }} \
               SubnetId=$FIRST_SUBNET

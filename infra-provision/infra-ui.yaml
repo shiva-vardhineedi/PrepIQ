@@ -5,6 +5,9 @@ Parameters:
   FrontendImage:
     Type: String
     Description: ECR Image URI for frontend
+  ECRRegistry:
+    Type: String
+    Description: Registry
   VpcId:
     Type: AWS::EC2::VPC::Id
     Description: Default VPC ID
@@ -73,9 +76,12 @@ Resources:
           until docker info >/dev/null 2>&1; do
             sleep 1
           done
-          aws ecr get-login-password --region ${AWS::Region} | docker login --username AWS --password-stdin ${FrontendImage}
-          docker pull ${FrontendImage}
-          docker run -d -p 80:80 ${FrontendImage}
+          echo "Logging into ECR..."
+          aws ecr get-login-password --region ${AWS::Region} | docker login --username AWS --password-stdin ${ECRRegistry}
+
+          echo "Pulling and running frontend image..."
+          docker pull ${ECRRegistry}/${FrontendImage}:latest
+          docker run -d -p 80:80 ${ECRRegistry}/${FrontendImage}:latest
 
 Outputs:
   FrontendPublicIP:
