@@ -47,7 +47,7 @@ jobs:
         run: |
           aws cloudformation deploy \
             --stack-name $STACK_NAME \
-            --template-file infrastructure.yaml \
+            --template-file infra-provision/infra.yaml \
             --capabilities CAPABILITY_NAMED_IAM \
             --parameter-overrides BackendImage=$ECR_REGISTRY/$BACKEND_IMAGE:latest
 
