@@ -26,6 +26,9 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
 
   EC2InstanceRole:
     Type: AWS::IAM::Role
@@ -61,10 +64,15 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
-          yum update -y
-          amazon-linux-extras install docker -y
-          service docker start
-          usermod -a -G docker ec2-user
+          sudo yum update -y
+          sudo yum install -y docker
+          sudo service docker start
+          sudo systemctl enable docker
+          sudo usermod -a -G docker ec2-user
+
+          until docker info >/dev/null 2>&1; do
+            sleep 1
+          done
           aws ecr get-login-password --region ${AWS::Region} | docker login --username AWS --password-stdin ${FrontendImage}
           docker pull ${FrontendImage}
           docker run -d -p 80:80 ${FrontendImage}
