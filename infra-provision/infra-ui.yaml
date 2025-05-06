@@ -26,6 +26,9 @@ Parameters:
   DomainName:
     Type: String
     Description: Domain name (e.g., prepiq.online)
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Public subnets across two AZs
 
 Resources:
   FrontendSecurityGroup:
@@ -100,7 +103,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Name: frontend-alb
-      Subnets: [!Ref SubnetId]
+      Subnets: !Ref SubnetIds
       SecurityGroups: [!Ref FrontendSecurityGroup]
       Scheme: internet-facing
 
