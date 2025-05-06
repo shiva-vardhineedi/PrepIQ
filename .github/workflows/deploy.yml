@@ -94,11 +94,3 @@ jobs:
               FrontendImage=$FRONTEND_IMAGE \
               VpcId=${{ secrets.DEFAULT_VPC_ID }} \
               SubnetId=$FIRST_SUBNET
-
-      - name: Get Frontend Public IP
-        run: |
-          FRONTEND_IP=$(aws cloudformation describe-stacks \
-            --stack-name $FRONTEND_STACK_NAME \
-            --query "Stacks[0].Outputs[?OutputKey=='FrontendPublicIP'].OutputValue" \
-            --output text)
-          echo "Frontend is now available at: http://$FRONTEND_IP"
