@@ -6,8 +6,8 @@ on:
 
 env:
   AWS_REGION: us-east-2
-  BACKEND_IMAGE: backend-prepiq
-  FRONTEND_IMAGE: frontend-prepiq
+  BACKEND_IMAGE: majorproject/backend-prepiq
+  FRONTEND_IMAGE: majorproject/frontend-prepiq
   ECR_REGISTRY: 454919090770.dkr.ecr.us-east-2.amazonaws.com
 
 jobs:
