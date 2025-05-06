@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+python-multipart
+langchain
+langchain-community
+langchain-core
+langchain-groq
+sentence-transformers
+reportlab
+boto3
+python-dotenv
+sqlalchemy
+pika
+requests
+pydantic
+alembic

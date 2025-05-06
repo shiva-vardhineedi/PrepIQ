@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  fastapi-app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fastapi-quiz-app
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+      - faiss_index:/app/faiss_index
+      - uploaded_files:/app/uploaded_files
+    depends_on:
+      - rabbitmq
+
+  frontend:
+    build:
+      context: ./frontend/quiz-app
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=http://localhost:8000
+    container_name: quiz-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - fastapi-app
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  faiss_index:
+  uploaded_files:
+  rabbitmq_data:

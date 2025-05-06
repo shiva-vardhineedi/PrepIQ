@@ -1,0 +1,52 @@
+{
+    "quiz_questions": [
+        {
+            "question": "What symbol marks the road surface in an HOV lane?",
+            "choices": [
+                "Circle",
+                "Square",
+                "Triangle",
+                "Diamond"
+            ],
+            "answer": "Diamond",
+            "your_answer": "Diamond"
+        },
+        {
+            "question": "To use an HOV lane, you must have at least how many people in your vehicle?",
+            "choices": [
+                "1",
+                "2",
+                "3",
+                "The number is specified on signs"
+            ],
+            "answer": "The number is specified on signs",
+            "your_answer": "2"
+        },
+        {
+            "question": "Which of the following is NOT a valid reason to use an HOV lane?",
+            "choices": [
+                "Driving a low-emission vehicle with a decal",
+                "Driving a motorcycle",
+                "Driving a car with a broken down engine",
+                "Having a certain number of passengers"
+            ],
+            "answer": "Driving a car with a broken down engine",
+            "your_answer": "Driving a car with a broken down engine"
+        },
+        {
+            "question": "True or False: HOV lanes are always open 24 hours a day.",
+            "choices": [
+                "True",
+                "False"
+            ],
+            "answer": "False",
+            "your_answer": "False"
+        },
+        {
+            "question": "What types of vehicles are allowed to use an HOV lane, besides those with the required number of passengers?",
+            "choices": null,
+            "answer": "Buses, motorcycles with proper signage, and low-emission or zero-emission vehicles displaying a DMV-issued decal are allowed to use HOV lanes.",
+            "your_answer": "truck, bus and motorcycles etc."
+        }
+    ]
+}
