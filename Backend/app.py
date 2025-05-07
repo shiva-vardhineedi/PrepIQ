@@ -40,12 +40,16 @@ load_dotenv()
 # Initialize FastAPI
 app = FastAPI(root_path="/api")
 
+origins = [
+    "*",  # Or explicitly list: "https://prepiq.online"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*", "http://your-frontend-domain.com"],  # Frontend URLs
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, DELETE, etc.)
-    allow_headers=["*"],  # Allow all headers
+    allow_origins=origins,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # SQLAlchemy Database setup

@@ -44,16 +44,16 @@ jobs:
       #     docker build -t $ECR_REGISTRY/$BACKEND_IMAGE:latest ./Backend
       #     docker push $ECR_REGISTRY/$BACKEND_IMAGE:latest
 
-      # - name: Deploy CloudFormation Stack
-      #   run: |
-      #     aws cloudformation deploy \
-      #       --stack-name $STACK_NAME \
-      #       --template-file infra-provision/infra.yaml \
-      #       --capabilities CAPABILITY_NAMED_IAM \
-      #       --parameter-overrides \
-      #         BackendImage=$ECR_REGISTRY/$BACKEND_IMAGE:latest \
-      #         VpcId=${{ secrets.DEFAULT_VPC_ID }} \
-      #         SubnetIds=${{ secrets.DEFAULT_SUBNET_IDS }}
+      - name: Deploy CloudFormation Stack
+        run: |
+          aws cloudformation deploy \
+            --stack-name $STACK_NAME \
+            --template-file infra-provision/infra.yaml \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameter-overrides \
+              BackendImage=$ECR_REGISTRY/$BACKEND_IMAGE:latest \
+              VpcId=${{ secrets.DEFAULT_VPC_ID }} \
+              SubnetIds=${{ secrets.DEFAULT_SUBNET_IDS }}
 
 
       # - name: Get ALB URL
