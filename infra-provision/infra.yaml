@@ -96,6 +96,12 @@ Resources:
           PortMappings:
             - ContainerPort: 8000
           Essential: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: /ecs/edurag-backend
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: backend
 
   Service:
     Type: AWS::ECS::Service
