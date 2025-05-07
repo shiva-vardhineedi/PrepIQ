@@ -56,21 +56,21 @@ jobs:
               SubnetIds=${{ secrets.DEFAULT_SUBNET_IDS }}
 
 
-      # - name: Get ALB URL
-      #   id: alb
-      #   run: |
-      #     ALB_URL=$(aws cloudformation describe-stacks \
-      #       --stack-name $STACK_NAME \
-      #       --query "Stacks[0].Outputs[?OutputKey=='LoadBalancerDNS'].OutputValue" \
-      #       --output text)
-      #     echo "ALB_URL=$ALB_URL" >> $GITHUB_ENV
+      - name: Get ALB URL
+        id: alb
+        run: |
+          ALB_URL=$(aws cloudformation describe-stacks \
+            --stack-name $STACK_NAME \
+            --query "Stacks[0].Outputs[?OutputKey=='LoadBalancerDNS'].OutputValue" \
+            --output text)
+          echo "ALB_URL=$ALB_URL" >> $GITHUB_ENV
 
-      # - name: Build and Push Frontend
-      #   run: |
-      #     docker build \
-      #       --build-arg REACT_APP_API_URL=http://$ALB_URL \
-      #       -t $ECR_REGISTRY/$FRONTEND_IMAGE:latest ./Frontend/quiz_application
-      #     docker push $ECR_REGISTRY/$FRONTEND_IMAGE:latest
+      - name: Build and Push Frontend
+        run: |
+          docker build \
+            --build-arg REACT_APP_API_URL=http://$ALB_URL \
+            -t $ECR_REGISTRY/$FRONTEND_IMAGE:latest ./Frontend/quiz_application
+          docker push $ECR_REGISTRY/$FRONTEND_IMAGE:latest
 
       - name: Get Latest Amazon Linux 2 AMI ID
         id: ami
