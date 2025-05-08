@@ -244,15 +244,26 @@ async def upload_faiss_to_s3(s3_folder_name: dict):
             s3.upload_fileobj(f, s3_bucket, s3_key_2, ExtraArgs={'ContentType': 'application/octet-stream'})
 
         
-        # Delete the faiss_index file after successful upload
+        # # Delete the faiss_index file after successful upload
+        # if os.path.exists("faiss_index"):
+        #     try:
+        #         os.chmod("faiss_index", 0o777)  # Change permissions to ensure it can be deleted
+        #         os.remove("faiss_index")
+        #         logging.info("FAISS index file deleted after successful upload.")
+        #     except PermissionError as e:
+        #         logging.error(f"Permission denied while deleting FAISS index: {e}")
+        #     logging.info("FAISS index file deleted after successful upload.")
+        # Delete the faiss_index directory after successful upload
         if os.path.exists("faiss_index"):
             try:
-                os.chmod("faiss_index", 0o777)  # Change permissions to ensure it can be deleted
-                os.remove("faiss_index")
-                logging.info("FAISS index file deleted after successful upload.")
+                os.chmod("faiss_index", 0o755)  # Ensure the directory is readable/writable/executable
+                shutil.rmtree("faiss_index")
+                logging.info("FAISS index directory deleted after successful upload.")
             except PermissionError as e:
-                logging.error(f"Permission denied while deleting FAISS index: {e}")
-            logging.info("FAISS index file deleted after successful upload.")
+                logging.error(f"Permission denied while deleting FAISS index directory: {e}")
+            except Exception as e:
+                logging.error(f"Failed to delete FAISS index directory: {e}")
+
         
         logging.info(f"FAISS index successfully uploaded to s3://{s3_bucket}/{s3_key}")
         return {"message": f"FAISS index successfully uploaded to s3://{s3_bucket}/{s3_key}"}
