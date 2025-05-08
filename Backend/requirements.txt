@@ -14,3 +14,4 @@ pika
 requests
 pydantic
 alembic
+pypdf
