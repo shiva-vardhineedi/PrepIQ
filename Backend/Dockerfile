@@ -29,6 +29,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install faiss-cpu
 
+RUN pip install pypdf
+
 # Copy entire app
 COPY . .
 
