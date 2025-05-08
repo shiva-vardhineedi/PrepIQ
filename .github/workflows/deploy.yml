@@ -53,7 +53,8 @@ jobs:
             --parameter-overrides \
               BackendImage=$ECR_REGISTRY/$BACKEND_IMAGE:latest \
               VpcId=${{ secrets.DEFAULT_VPC_ID }} \
-              SubnetIds=${{ secrets.DEFAULT_SUBNET_IDS }}
+              SubnetIds=${{ secrets.DEFAULT_SUBNET_IDS }} \
+              GroqApiKey=${{ secrets.GROQ_API_KEY }}
 
 
       - name: Get ALB URL

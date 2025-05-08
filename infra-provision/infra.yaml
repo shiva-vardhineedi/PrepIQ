@@ -11,6 +11,9 @@ Parameters:
   SubnetIds:
     Type: List<AWS::EC2::Subnet::Id>
     Description: Use public subnets in default VPC
+  GroqApiKey:
+    Type: String
+    Description: Groq API Key to pass into container
 
 Resources:
   Cluster:
@@ -110,6 +113,9 @@ Resources:
               awslogs-group: /ecs/edurag-backend
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: backend
+          Environment:
+            - Name: GROQ_API_KEY
+              Value: !Ref GroqApiKey
 
   Service:
     Type: AWS::ECS::Service
