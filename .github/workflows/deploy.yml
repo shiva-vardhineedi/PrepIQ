@@ -39,10 +39,10 @@ jobs:
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
 
-      # - name: Build and Push Backend
-      #   run: |
-      #     docker build -t $ECR_REGISTRY/$BACKEND_IMAGE:latest ./Backend
-      #     docker push $ECR_REGISTRY/$BACKEND_IMAGE:latest
+      - name: Build and Push Backend
+        run: |
+          docker build -t $ECR_REGISTRY/$BACKEND_IMAGE:latest ./Backend
+          docker push $ECR_REGISTRY/$BACKEND_IMAGE:latest
 
       - name: Deploy CloudFormation Stack
         run: |
