@@ -115,3 +115,36 @@ on:
 ---
 
 You're now ready to confidently deploy and manage your EduRAG full-stack project on AWS!
+
+should be able to see this dashboard on successful login:
+
+![image](https://github.com/user-attachments/assets/39ac95d1-1209-4718-ab5e-92990eec545f)
+
+Then upon clicking **BROWSE TOPICS** you should land on the below screen where you can:
+* search topics
+* create new topic
+* favourite your topic
+* select topic and create quiz with below mockups
+
+
+![image](https://github.com/user-attachments/assets/07aa9f39-9ba4-4723-a4db-b9323fd9febe)
+![image](https://github.com/user-attachments/assets/be9672f8-d823-4319-9ff7-054836f216a8)
+![image](https://github.com/user-attachments/assets/1375ad98-ff07-476c-aace-1e6b702e6997)
+![image](https://github.com/user-attachments/assets/eea0cd80-8431-4e9a-956d-9ab7da4ed3ac)
+
+Then upon completion...you get your scores with answers to review and feedback
+
+![image](https://github.com/user-attachments/assets/74c00d1a-eed9-4fc6-8e15-fc2faa132a16)
+![image](https://github.com/user-attachments/assets/20ec5046-6d4b-462c-9cd3-69a9cd8fa06d)
+
+You can also access your previous quiz from the list in dashboard:
+
+![image](https://github.com/user-attachments/assets/2a79d005-2b28-4d69-a0a4-47a46130c0b9)
+
+
+
+
+
+
+
+
